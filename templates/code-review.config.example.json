@@ -4,6 +4,5 @@
     "model": "deepseek-flash",
     "wireApi": "responses"
   },
-  "stateManagement": "pinia",
-  "blockStrategy": "advise-first"
+  "stateManagement": "pinia"
 }

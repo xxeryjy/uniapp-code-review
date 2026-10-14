@@ -4,7 +4,7 @@ uniapp 跨端项目的 AI 代码审查基线。配合 `git commit` 门禁使用�
 
 - **基线规则跨项目共用**（本包内置 `baseline/`）；
 - **项目差异通过配置声明**（各项目的 `code-review.config.json`）；
-- 审查结论**只作建议**，是否阻断由项目的 `blockStrategy` 决定。
+- 拦截规则固定：报告里出现**严重**项才拦截，且必须确认（输入严重项条数）后才放行；`建议` / `可选` 只作参考。
 
 ## 安装
 
@@ -56,8 +56,7 @@ npm i -g @openai/codex
     "model": "deepseek-flash",
     "wireApi": "responses"
   },
-  "stateManagement": "pinia",
-  "blockStrategy": "severe-gate"
+  "stateManagement": "pinia"
 }
 ```
 
@@ -96,19 +95,21 @@ npx --no-install uniapp-code-review annotate "$1"
 | `codex.model` | 模型名 | 默认 `deepseek-flash` |
 | `codex.wireApi` | `responses` | 调用协议 |
 | `stateManagement` | `pinia` / `vuex` | 决定状态管理部分注入哪一套检查项，默认 `pinia` |
-| `blockStrategy` | `severe-gate` / `block-on-severe` / `never` | 阻断策略，默认 `severe-gate` |
 
-### blockStrategy 行为
+配置里出现的其他字段会被忽略。
 
-| 取值 | 无严重项 | 有严重项 | 未生成报告 | 报告格式异常 |
-| --- | --- | --- | --- | --- |
-| `severe-gate`（默认） | 直接放行 | 阻断，需确认后才能放行 | 阻断 | 阻断 |
-| `block-on-severe` | 直接放行 | **一律阻断**（无确认通道） | 阻断 | 阻断 |
-| `never` | 放行 | 放行（仅提示） | 阻断 | 放行 |
+## 拦截规则（固定，不对外开放开关）
 
-> "报告格式异常"指报告里解析不到任何 `严重 / 建议 / 可选` 章节——此时无法判定，按审查无效处理。
+| 情况 | 行为 |
+| --- | --- |
+| 报告**无**严重项 | 直接放行 |
+| 报告**有**严重项 | 阻断，需确认后才能放行 |
+| 未生成报告（代理 / 执行异常） | 阻断 |
+| 报告格式异常（解析不到任何三级章节） | 阻断 |
 
-### 有严重项时怎么放行（`severe-gate`）
+> 拦截规则刻意**不放在项目配置里**，避免被人改成"不拦截"。当然，本地 hook 本身挡不住 `git commit --no-verify` 这类有意绕过——真要强制需依赖服务端门禁。
+
+### 有严重项时怎么放行
 
 1. `git commit` 被拦下，终端会列出**全部严重项**（问题描述 + 文件位置）；
 2. 打开报告逐条确认是否真的要处理；
