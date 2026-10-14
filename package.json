@@ -1,6 +1,6 @@
 {
   "name": "@wenshanhu/uniapp-code-review",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "uniapp 跨端项目的 AI 代码审查基线：配合 git commit 门禁使用，基线规则跨项目共用，项目差异通过 code-review.config.json 声明。",
   "license": "MIT",
   "bin": {

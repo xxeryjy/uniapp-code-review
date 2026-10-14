@@ -64,8 +64,10 @@ npm i -g @openai/codex
 3. 在 `.husky/pre-commit` 中调用：
 
 ```sh
-node node_modules/@wenshanhu/uniapp-code-review/bin/cli.js
+npx --no-install uniapp-code-review
 ```
+
+（`npx --no-install` 只使用本地已安装的 bin，不会联网下载；与第 4 步的 `npm run review` 是同一个入口。）
 
 4. 可选：在 `package.json` 里加脚本，便于手动运行。
 
