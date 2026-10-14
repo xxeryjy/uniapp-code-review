@@ -8,11 +8,30 @@ uniapp 跨端项目的 AI 代码审查基线。配合 `git commit` 门禁使用�
 
 ## 安装
 
-以 git 依赖方式安装为 devDependency：
+以 git 依赖方式安装为 devDependency（用 `#semver:` 指定版本范围）：
 
 ```bash
-npm i -D git+https://github.com/xxeryjy/uniapp-code-review.git
+npm i -D "github:xxeryjy/uniapp-code-review#semver:^1.0.0"
 ```
+
+对应的 `package.json` 声明：
+
+```json
+"@wenshanhu/uniapp-code-review": "github:xxeryjy/uniapp-code-review#semver:^1.0.0"
+```
+
+> 依赖写法必须与 `package-lock.json` 保持一致；改完写法后要重跑一次 `npm install` 重新生成锁文件。
+
+### 升级基线版本
+
+```bash
+# 1. 在包仓库打新 tag 并推送
+git tag v1.1.0 && git push origin v1.1.0
+# 2. 各项目拉取范围内最新版本
+npm i
+```
+
+`^1.0.0` 会自动匹配 `1.x` 的新 tag；若为破坏性变更，请打 `v2.0.0`，各项目需把范围改成 `^2.0.0`。
 
 **`@openai/codex` 需要单独安装（本包不自动安装它）**。因为 codex 的平台二进制约 400 MB，建议全团队**全局安装一次**共用：
 
