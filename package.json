@@ -1,0 +1,21 @@
+{
+  "name": "@wenshanhu/uniapp-code-review",
+  "version": "1.0.0",
+  "description": "uniapp 跨端项目的 AI 代码审查基线：配合 git commit 门禁使用，基线规则跨项目共用，项目差异通过 code-review.config.json 声明。",
+  "license": "MIT",
+  "bin": {
+    "uniapp-code-review": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "baseline",
+    "templates"
+  ],
+  "dependencies": {
+    "@openai/codex": "^0.146.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
