@@ -14,7 +14,15 @@ uniapp 跨端项目的 AI 代码审查基线。配合 `git commit` 门禁使用�
 npm i -D git+https://github.com/xxeryjy/uniapp-code-review.git
 ```
 
-> 打包体积不受影响：本包只在 `git commit` 时被 husky 以 Node 命令调用，不会被任何页面/组件 import，因此不会进入 vite / uni-app 的构建产物。生产安装使用 `npm i --omit=dev` 时会连同本包及其依赖一起跳过。
+**`@openai/codex` 需要单独安装（本包不自动安装它）**。因为 codex 的平台二进制约 400 MB，建议全团队**全局安装一次**共用：
+
+```bash
+npm i -g @openai/codex
+```
+
+也可以按项目安装：`npm i -D @openai/codex`。本包查找 codex 的顺序为：**包自身 → 项目本地 `node_modules` → npm 全局安装目录**（`npm root -g`）。
+
+> 打包体积不受影响：本包只在 `git commit` 时被 husky 以 Node 命令调用，不会被任何页面/组件 import，因此不会进入 vite / uni-app 的构建产物。生产安装使用 `npm i --omit=dev` 时会连同本包一起跳过。
 
 ## 在项目中接入
 

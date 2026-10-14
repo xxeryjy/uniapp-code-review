@@ -12,8 +12,13 @@
     "baseline",
     "templates"
   ],
-  "dependencies": {
-    "@openai/codex": "^0.146.0"
+  "peerDependencies": {
+    "@openai/codex": ">=0.100.0"
+  },
+  "peerDependenciesMeta": {
+    "@openai/codex": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=16"
