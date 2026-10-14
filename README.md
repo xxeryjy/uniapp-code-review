@@ -57,7 +57,7 @@ npm i -g @openai/codex
     "wireApi": "responses"
   },
   "stateManagement": "pinia",
-  "blockStrategy": "advise-first"
+  "blockStrategy": "severe-gate"
 }
 ```
 
@@ -67,14 +67,23 @@ npm i -g @openai/codex
 npx --no-install uniapp-code-review
 ```
 
-（`npx --no-install` 只使用本地已安装的 bin，不会联网下载；与第 4 步的 `npm run review` 是同一个入口。）
+（`npx --no-install` 只使用本地已安装的 bin，不会联网下载。）
 
-4. 可选：在 `package.json` 里加脚本，便于手动运行。
+4. 在 `.husky/prepare-commit-msg` 中追加留痕：
+
+```sh
+npx --no-install uniapp-code-review annotate "$1"
+```
+
+被确认放行的提交，会自动在提交信息末尾追加一行 `[review: 已确认放行 N 条严重问题 @时间]`——痕迹随 git 历史走、团队可见。这个命令**永远不会阻断提交**。
+
+5. 在 `package.json` 里加脚本，便于手动运行与确认：
 
 ```json
 {
   "scripts": {
-    "review": "uniapp-code-review"
+    "review": "uniapp-code-review",
+    "review:confirm": "uniapp-code-review confirm"
   }
 }
 ```
@@ -87,15 +96,32 @@ npx --no-install uniapp-code-review
 | `codex.model` | 模型名 | 默认 `deepseek-flash` |
 | `codex.wireApi` | `responses` | 调用协议 |
 | `stateManagement` | `pinia` / `vuex` | 决定状态管理部分注入哪一套检查项，默认 `pinia` |
-| `blockStrategy` | `advise-first` / `block-on-severe` / `never` | 阻断策略，默认 `advise-first` |
+| `blockStrategy` | `severe-gate` / `block-on-severe` / `never` | 阻断策略，默认 `severe-gate` |
 
 ### blockStrategy 行为
 
-| 取值 | 有报告 | 无报告（代理异常） |
-| --- | --- | --- |
-| `advise-first` | 阻断一次，看过后原样再提交即放行 | 阻断 |
-| `block-on-severe` | 报告含“严重”条目才阻断 | 阻断 |
-| `never` | 只提示不阻断 | 阻断 |
+| 取值 | 无严重项 | 有严重项 | 未生成报告 | 报告格式异常 |
+| --- | --- | --- | --- | --- |
+| `severe-gate`（默认） | 直接放行 | 阻断，需确认后才能放行 | 阻断 | 阻断 |
+| `block-on-severe` | 直接放行 | **一律阻断**（无确认通道） | 阻断 | 阻断 |
+| `never` | 放行 | 放行（仅提示） | 阻断 | 放行 |
+
+> "报告格式异常"指报告里解析不到任何 `严重 / 建议 / 可选` 章节——此时无法判定，按审查无效处理。
+
+### 有严重项时怎么放行（`severe-gate`）
+
+1. `git commit` 被拦下，终端会列出**全部严重项**（问题描述 + 文件位置）；
+2. 打开报告逐条确认是否真的要处理；
+3. 确认无异议后执行：
+
+   ```bash
+   npm run review:confirm
+   ```
+
+4. 该命令会再次打印全部严重项，并要求你**输入严重项条数**；输入不匹配即取消、不放行；
+5. 确认成功后再次 `git commit` 即可提交，提交信息会自动带上留痕。
+
+> 暂存内容一变，确认立即失效，需要重新走一遍。
 
 配置取值非法时，提交会被阻止并打印具体错误。
 
